@@ -4,12 +4,11 @@ use Core\Controller;
 use Core\Router;
 use App\Models\Users;
 use App\Models\Login;
+use Core\H;
 
 class RegisterController extends Controller {
 
-  public function __construct($controller, $action) {
-    parent::__construct($controller, $action);
-    $this->load_model('Users');
+  public function onConstruct(){
     $this->view->setLayout('default');
   }
 
@@ -21,7 +20,8 @@ class RegisterController extends Controller {
       $loginModel->assign($this->request->get());
       $loginModel->validator();
       if($loginModel->validationPassed()){
-        $user = $this->UsersModel->findByUsername($_POST['username']);
+        $user = new Users();
+        $user = $user->findByUsername($_POST['username']);
         if($user && password_verify($this->request->get('password'), $user->password)) {
           $remember = $loginModel->getRememberMeChecked();
           $user->login($remember);
@@ -47,7 +47,7 @@ class RegisterController extends Controller {
     $newUser = new Users();
     if($this->request->isPost()) {
       $this->request->csrfCheck();
-      $newUser->assign($this->request->get());
+      $newUser->assign($this->request->get(),Users::blackListedFormKeys);
       $newUser->setConfirm($this->request->get('confirm'));
       if($newUser->save()){
         Router::redirect('register/login');
