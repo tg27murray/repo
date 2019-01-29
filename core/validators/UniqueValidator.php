@@ -13,7 +13,7 @@ class UniqueValidator extends CustomValidator{
 
     //check updating record
     if(!empty($this->_model->id)){
-      $conditions[] = "id = ?";
+      $conditions[] = "id != ?";
       $bind[] = $this->_model->id;
     }
 
@@ -26,7 +26,7 @@ class UniqueValidator extends CustomValidator{
       }
     }
     $queryParams = ['conditions'=>$conditions,'bind'=>$bind];
-    $other = $this->_model->findFirst($queryParams);
+    $other = $this->_model::findFirst($queryParams);
     return(!$other);
   }
 }

@@ -5,6 +5,7 @@ use Core\Router;
 use App\Models\Users;
 use App\Models\Login;
 use Core\H;
+use Core\Session;
 
 class RegisterController extends Controller {
 
@@ -20,8 +21,7 @@ class RegisterController extends Controller {
       $loginModel->assign($this->request->get());
       $loginModel->validator();
       if($loginModel->validationPassed()){
-        $user = new Users();
-        $user = $user->findByUsername($_POST['username']);
+        $user = Users::findByUsername($_POST['username']);
         if($user && password_verify($this->request->get('password'), $user->password)) {
           $remember = $loginModel->getRememberMeChecked();
           $user->login($remember);
@@ -40,7 +40,7 @@ class RegisterController extends Controller {
     if(Users::currentUser()) {
       Users::currentUser()->logout();
     }
-    Router::redirect('register/login');
+    Router::redirect('home');
   }
 
   public function registerAction() {
@@ -48,7 +48,7 @@ class RegisterController extends Controller {
     if($this->request->isPost()) {
       $this->request->csrfCheck();
       $newUser->assign($this->request->get(),Users::blackListedFormKeys);
-      $newUser->setConfirm($this->request->get('confirm'));
+      $newUser->confirm =$this->request->get('confirm');
       if($newUser->save()){
         Router::redirect('register/login');
       }
