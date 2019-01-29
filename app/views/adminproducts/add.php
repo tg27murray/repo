@@ -10,9 +10,9 @@
 <?php $this->end() ?>
 
 <?php $this->start('body') ?>
-<h1>Add New Product</h1>
-<div class="row">
-  <div class="col-md-10 col-md-offset-1 well">
+<div class="row align-items-center justify-content-center">
+  <div class="col-md-8 bg-light p-3">
+    <h1 class="text-center">Add New Product</h1>
     <?php $this->partial('adminproducts','form') ?>
   </div>
 </div>

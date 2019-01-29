@@ -5,11 +5,8 @@ use Core\H;
 
 class ProductImages extends Model{
   public $id, $url, $product_id, $name, $deleted=0;
-
-  public function __construct(){
-    $table = 'product_images';
-    parent::__construct($table);
-  }
+  protected static $_table = 'product_images';
+  protected static $_softDelete = true;
 
   public function validateImages($images){
     $files = self::restructureFiles($images);

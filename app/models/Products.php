@@ -5,19 +5,13 @@
 
   class Products extends Model {
 
-    public $id, $created_at, $updated_at, $name, $price, $list, $shipping, $description,$body, $deleted=0;
+    public $id, $created_at, $updated_at, $name, $price, $list, $shipping, $body, $deleted=0;
     const blackList = ['id','deleted'];
-
-    public function __construct() {
-      $table = 'products';
-      parent::__construct($table);
-    }
+    protected static $_table = 'products';
+    protected static $_softDelete = true;
 
     public function beforeSave(){
       $this->timeStamps();
-    }
-    public function afterSave(){
-      $this->id = $this->_db->lastID();
     }
 
     public function validator(){
