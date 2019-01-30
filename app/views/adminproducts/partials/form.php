@@ -17,10 +17,7 @@
   </div>
 
   <div class="row">
-    <div class="form-group col-md-6">
-      <label for="productImages" class="control-label">Upload Product Images:</label>
-      <input type="file" multiple="multiple" name="productImages[]" id="productImages" class="form-control"/>
-    </div>
+    <?= FH::inputBlock('file',"Upload ProductImages:",'productImages','',['class'=>'form-control','multiple'=>'multiple'],['class'=>'form-group col-md-6'],$this->displayErrors) ?>
   </div>
   <div class="row">
     <?= FH::submitBlock('Save',['class'=>'btn btn-large btn-primary'],['class'=>'text-right col-md-12']); ?>

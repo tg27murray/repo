@@ -20,5 +20,7 @@
         $this->runValidation(new RequiredValidator($this,['field'=>$field,'msg'=>$display." is required."]));
       }
       $this->runValidation(new NumericValidator($this,['field'=>'price','msg'=>'Price must be a number.']));
+      $this->runValidation(new NumericValidator($this,['field'=>'list','msg'=>'List Price must be a number.']));
+      $this->runValidation(new NumericValidator($this,['field'=>'shipping','msg'=>'Shipping must be a number.']));
     }
   }

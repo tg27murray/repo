@@ -5,6 +5,9 @@ use Core\Controller;
 use App\Models\Products;
 use Core\H;
 use App\Models\ProductImages;
+use App\Lib\Utilities\Uploads;
+use Core\Session;
+use Core\Router;
 
 class AdminproductsController extends Controller {
   public function __construct($controller,$action){
@@ -20,22 +23,31 @@ class AdminproductsController extends Controller {
     $product = new Products();
     $productImage = new ProductImages();
     if($this->request->isPost()){
-      $files = $_FILES['productImages'];
-      $this->request->csrfCheck();
-      $imagesErrors = $productImage->validateImages($files);
-      if(is_array($imagesErrors)){
-        $msg = "";
-        foreach($imagesErrors as $name => $message){
-          $msg .= $message . " ";
+      // $this->request->csrfCheck();
+      $files = $_FILES['productImages'];//H::dnd($files);
+      if($files['tmp_name'][0] == ''){
+        $product->addErrorMessage('productImages','You must choose an image.');
+      } else {
+        $uploads = new Uploads($files);
+        $uploads->runValidation();
+        $imagesErrors = $uploads->validates();
+        if(is_array($imagesErrors)){
+          $msg = "";
+          foreach($imagesErrors as $name => $message){
+            $msg .= $message . " ";
+          }
+          $product->addErrorMessage('productImages',trim($msg));
         }
-        $product->addErrorMessage('productImages',trim($msg));
+
       }
       $product->assign($this->request->get(),Products::blackList);
       $product->save();
       if($product->validationPassed()){
         //upload images
-        $structuredFiles = ProductImages::restructureFiles($files);
-        ProductImages::uploadProductImages($product->id,$structuredFiles);
+        ProductImages::uploadProductImages($product->id,$uploads);
+        //redirect
+        Session::addMsg('success','Product Added!');
+        Router::redirect('adminproducts');
       }
     }
     $this->view->product = $product;

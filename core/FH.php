@@ -20,10 +20,12 @@ class FH {
     $inputAttrs = self::appendErrorClass($inputAttrs,$errors,$name,'is-invalid');
     $divString = self::stringifyAttrs($divAttrs);
     $inputString = self::stringifyAttrs($inputAttrs);
+    $id = $name;
+    $name = ($type == 'file' && array_key_exists('multiple',$inputAttrs))? $name.'[]' : $name;
     $html = '<div' . $divString . '>';
-    $html .= '<label class="control-label" for="'.$name.'">'.$label.'</label>';
-    $html .= '<input type="'.$type.'" id="'.$name.'" name="'.$name.'" value="'.$value.'"'.$inputString.' />';
-    $html .= '<span class="invalid-feedback">'.self::errorMsg($errors,$name).'</span>';
+    $html .= '<label class="control-label" for="'.$id.'">'.$label.'</label>';
+    $html .= '<input type="'.$type.'" id="'.$id.'" name="'.$name.'" value="'.$value.'"'.$inputString.' />';
+    $html .= '<span class="invalid-feedback">'.self::errorMsg($errors,$id).'</span>';
     $html .= '</div>';
     return $html;
   }
@@ -76,7 +78,7 @@ class FH {
     $checkString = ($checked)? ' checked="checked"' : '';
     $html = '<div'.$divString.'>';
     $html .= '<label for="'.$name.'" class="control-label">'.$label.' <input type="checkbox" id="'.$name.'" name="'.$name.'" value="on"'.$checkString.$inputString.'>';
-    $html .= '<span class="help-block">'.self::errorMsg($errors,$name).'</span>';
+    $html .= '<span class="invalid-feedback">'.self::errorMsg($errors,$name).'</span>';
     $html .= '</label>';
     $html .= '</div>';
     return $html;
@@ -101,7 +103,7 @@ class FH {
     $html = '<div' . $divString . '>';
     $html .= '<label for="'.$name.'" class="control-label">' . $label . '</label>';
     $html .= '<select id="'.$name.'" name="'.$name.'" value="'.$value.'"'.$inputString.'>'.self::optionsForSelect($options).'</select>';
-    $html .= '<span class="help-block">'.self::errorMsg($errors,$name).'</span>';
+    $html .= '<span class="invalid-feedback">'.self::errorMsg($errors,$name).'</span>';
     $html .= '</div>';
     return $html;
   }
@@ -124,7 +126,7 @@ class FH {
     $html = '<div' . $divString . '>';
     $html .= '<label for="'.$name.'" class="control-label">' . $label . '</label>';
     $html .= '<textarea id="'.$name.'" name="'.$name.'"'.$inputString.'>'.$value.'</textarea>';
-    $html .= '<span class="help-block">'.self::errorMsg($errors,$name).'</span>';
+    $html .= '<span class="invalid-feedback">'.self::errorMsg($errors,$name).'</span>';
     $html .= '</div>';
     return $html;
   }
