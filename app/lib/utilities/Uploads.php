@@ -1,6 +1,8 @@
 <?php
   namespace App\Lib\Utilities;
 
+  use Core\H;
+
   class Uploads {
 
     private $_errors = [], $_files=[], $_maxAllowedSize = 5242880;
@@ -23,7 +25,7 @@
       if (!file_exists($bucket)) {
           mkdir($bucket);
         }
-      move_uploaded_file($tmp,ROOT.DS.$bucket.$name);
+      $resp = move_uploaded_file($tmp,ROOT.DS.$bucket.$name);
     }
 
     public function getFiles(){

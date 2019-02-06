@@ -27,5 +27,20 @@ class ProductImages extends Model{
     }
   }
 
+  public static function deleteImages($product_id,$unlink = false){
+    $images = self::find([
+      'conditions' => "product_id = ?",
+      'bind' => [$product_id]
+    ]);
+    foreach($images as $image){
+      $image->delete();
+    }
+    if($unlink){
+      $dirname = ROOT.DS.'uploads' . DS . 'product_images' . DS . 'product_' . $product_id;
+      array_map('unlink', glob("$dirname/*.*"));
+      rmdir($dirname);
+    }
+  }
+
 
 }

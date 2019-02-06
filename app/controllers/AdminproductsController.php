@@ -2,20 +2,23 @@
 namespace App\Controllers;
 
 use Core\Controller;
-use App\Models\Products;
 use Core\H;
-use App\Models\ProductImages;
-use App\Lib\Utilities\Uploads;
 use Core\Session;
 use Core\Router;
+use App\Models\Products;
+use App\Models\ProductImages;
+use App\Lib\Utilities\Uploads;
+use App\Models\Users;
 
 class AdminproductsController extends Controller {
-  public function __construct($controller,$action){
-    parent::__construct($controller,$action);
+
+  public function onConstruct(){
     $this->view->setLayout('admin');
+    $this->currentUser = Users::currentUser();
   }
 
   public function indexAction(){
+    $this->view->products = Products::findByUserId($this->currentUser->id);
     $this->view->render('adminproducts/index');
   }
 
@@ -23,8 +26,8 @@ class AdminproductsController extends Controller {
     $product = new Products();
     $productImage = new ProductImages();
     if($this->request->isPost()){
-      // $this->request->csrfCheck();
-      $files = $_FILES['productImages'];//H::dnd($files);
+      $this->request->csrfCheck();
+      $files = $_FILES['productImages'];
       if($files['tmp_name'][0] == ''){
         $product->addErrorMessage('productImages','You must choose an image.');
       } else {
@@ -41,6 +44,8 @@ class AdminproductsController extends Controller {
 
       }
       $product->assign($this->request->get(),Products::blackList);
+      $product->featured = ($this->request->get('featured') == 'on')? 1 : 0;
+      $product->user_id = $this->currentUser->id;
       $product->save();
       if($product->validationPassed()){
         //upload images
@@ -54,5 +59,34 @@ class AdminproductsController extends Controller {
     $this->view->formAction = PROOT.'adminproducts/add';
     $this->view->displayErrors = $product->getErrorMessages();
     $this->view->render('adminproducts/add');
+  }
+
+  public function deleteAction(){
+    $resp = ['success'=>false,'msg'=>'Something went wrong...'];
+    if($this->request->isPost()){
+      $id = $this->request->get('id');
+      $product = Products::findByIdAndUserId($id, $this->currentUser->id);
+      if($product){
+        ProductImages::deleteImages($id);
+        $product->delete();
+        $resp = ['success' => true, 'msg' => 'Product Deleted.','model_id' => $id];
+      }
+    }
+    $this->jsonResponse($resp);
+  }
+
+  public function toggleFeaturedAction(){
+    $resp = ['success'=>false,'msg'=>'Something went wrong...'];
+    if($this->request->isPost()){
+      $id = $this->request->get('id');
+      $product = Products::findByIdAndUserId($id, $this->currentUser->id);
+      if($product){
+        $product->featured = !$product->featured;
+        $product->save();
+        $msg = ($product->featured == 1)? "Product Now Featured" : "Product No Longer Featured";
+        $resp = ['success' => true, 'msg' => $msg,'model_id' => $id,'featured'=>$product->featured];
+      }
+    }
+    $this->jsonResponse($resp);
   }
 }
