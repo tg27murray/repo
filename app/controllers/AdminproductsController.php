@@ -89,4 +89,66 @@ class AdminproductsController extends Controller {
     }
     $this->jsonResponse($resp);
   }
+
+  public function editAction($id){
+    $user = Users::currentUser();
+    $product = Products::findByIdAndUserId((int)$id,$user->id);
+    if(!$product){
+      Session::addMsg('danger','You do not have permission to edit that product');
+      Router::redirect('adminproducts');
+    }
+    $images = ProductImages::findByProductId($product->id);
+    if($this->request->isPost()){
+      $this->request->csrfCheck();
+      $files = $_FILES['productImages'];
+      $isFiles = $files['tmp_name'][0] != '';
+      if($isFiles){
+        // $productImage = new ProductImages();
+        $uploads = new Uploads($files);
+        $uploads->runValidation();
+        $imagesErrors = $uploads->validates();
+        if(is_array($imagesErrors)){
+          $msg = "";
+          foreach($imagesErrors as $name => $message){
+            $msg .= $message . " ";
+          }
+          $product->addErrorMessage('productImages',trim($msg));
+        }
+      }
+      $product->assign($this->request->get(),Products::blackList);
+      $product->featured = ($this->request->get('featured') == 'on')? 1 : 0;
+      $product->user_id = $this->currentUser->id;
+      $product->save();
+      if($product->validationPassed()){
+        if($isFiles){
+          //upload images
+          ProductImages::uploadProductImages($product->id,$uploads);
+        }
+        $sortOrder = json_decode($_POST['images_sorted']);
+        ProductImages::updateSortByProductId($product->id,$sortOrder);
+        //redirect
+        Session::addMsg('success','Product Updated!');
+        Router::redirect('adminproducts');
+      }
+    }
+    $this->view->images = $images;
+    $this->view->product = $product;
+    $this->view->displayErrors = $product->getErrorMessages();
+    $this->view->render('adminproducts/edit');
+  }
+
+  function deleteImageAction(){
+    $resp = ['success'=>false];
+    if($this->request->isPost()){
+      $user = Users::currentUser();
+      $id = $this->request->get('image_id');
+      $image = ProductImages::findById($id);
+      $product = Products::findByIdAndUserId($image->product_id,$user->id);
+      if($product && $image){
+        ProductImages::deleteById($image->id);
+        $resp = ['success'=>true,'model_id'=>$image->id];
+      }
+    }
+    $this->jsonResponse($resp);
+  }
 }
