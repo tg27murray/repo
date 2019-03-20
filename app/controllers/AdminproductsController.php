@@ -81,7 +81,7 @@ class AdminproductsController extends Controller {
       $id = $this->request->get('id');
       $product = Products::findByIdAndUserId($id, $this->currentUser->id);
       if($product){
-        $product->featured = !$product->featured;
+        $product->featured = ($product->featured == 1)? 0 : 1;
         $product->save();
         $msg = ($product->featured == 1)? "Product Now Featured" : "Product No Longer Featured";
         $resp = ['success' => true, 'msg' => $msg,'model_id' => $id,'featured'=>$product->featured];
