@@ -1,6 +1,7 @@
 <?php
 namespace Core\Validators;
 use Core\Validators\CustomValidator;
+use Core\H;
 
 class UniqueValidator extends CustomValidator{
 
@@ -30,6 +31,7 @@ class UniqueValidator extends CustomValidator{
         $bind[] = $this->_model->{$adds};
       }
     }
+
     $queryParams = ['conditions'=>$conditions,'bind'=>$bind];
     $other = $this->_model::findFirst($queryParams);
     return(!$other);

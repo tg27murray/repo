@@ -26,6 +26,7 @@
 
     public function saveAction(){
       if($this->request->isPost()){
+        $resp = ['success'=>false];
         $brand_id = $this->request->get('brand_id');
         $brand = ($brand_id == 'new')? new Brands() : Brands::findByUserIdAndId($this->currentUser->id,$brand_id);
         if($brand){
@@ -33,9 +34,9 @@
           $brand->name = $this->request->get('name');
           if($brand->save()){
             $resp = ['success'=>true, 'brand'=>$brand->data()];
+           } else {
+            $resp = ['success'=>false,'errors'=>$brand->getErrorMessages()];
           }
-        } else {
-          $resp = ['success'=>false,'errors'=>$brand->getErrorMessages()];
         }
         $this->jsonResponse($resp);
       }

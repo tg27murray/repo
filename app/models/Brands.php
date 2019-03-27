@@ -14,7 +14,7 @@
 
     public function validator(){
       $this->runValidation(new RequiredValidator($this,['field'=>'name','msg'=>'Brand Name is required.']));
-      $this->runValidation(new UniqueValidator($this,['field'=>['name','deleted'],'msg'=>'That Brand Name already exists.']));
+      $this->runValidation(new UniqueValidator($this,['field'=>['name','user_id','deleted'],'msg'=>'That Brand Name already exists.']));
     }
 
     public static function findByUserIdAndId($user_id,$id){
@@ -22,5 +22,19 @@
         'conditions' => "user_id = ? AND id = ?",
         'bind' => [$user_id,$id]
       ]);
+    }
+
+    public static function getOptionsForForm($user_id){
+      $brands = self::find([
+        'columns' => 'id,name',
+        'conditions' => "user_id = ?",
+        'bind' => [$user_id],
+        'order' => 'name'
+      ]);
+      $brandsAry = [''=>'-Select Brand-'];
+      foreach($brands as $brand){
+        $brandsAry[$brand->id] = $brand->name;
+      }
+      return $brandsAry;
     }
   }

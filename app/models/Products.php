@@ -2,10 +2,11 @@
   namespace App\Models;
   use Core\Model;
   use Core\Validators\{RequiredValidator,NumericValidator};
+  use Core\H;
 
   class Products extends Model {
 
-    public $id, $created_at, $updated_at, $user_id, $name, $price, $list, $shipping, $body, $featured = 0, $deleted=0;
+    public $id, $created_at, $updated_at, $user_id, $name, $price, $list, $shipping, $body, $brand_id, $featured = 0, $deleted=0;
     const blackList = ['id','deleted','featured'];
     protected static $_table = 'products';
     protected static $_softDelete = true;
@@ -44,5 +45,18 @@
 
     public function isChecked(){
       return $this->featured === 1;
+    }
+
+    public function featuredProducts(){
+      $sql = "SELECT products.*, pi.url as url, brands.name as brand
+              FROM products
+              JOIN product_images as pi
+              ON products.id = pi.product_id
+              JOIN brands
+              ON products.brand_id = brands.id
+              WHERE products.featured = '1' and products.deleted = '0' and pi.sort = '0'
+              group by pi.product_id
+              ";
+      return $this->query($sql)->results();
     }
   }

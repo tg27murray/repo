@@ -9,6 +9,7 @@ use App\Models\Products;
 use App\Models\ProductImages;
 use App\Lib\Utilities\Uploads;
 use App\Models\Users;
+use App\Models\Brands;
 
 class AdminproductsController extends Controller {
 
@@ -56,6 +57,7 @@ class AdminproductsController extends Controller {
       }
     }
     $this->view->product = $product;
+    $this->view->brands = Brands::getOptionsForForm($this->currentUser->id);
     $this->view->formAction = PROOT.'adminproducts/add';
     $this->view->displayErrors = $product->getErrorMessages();
     $this->view->render('adminproducts/add');
@@ -131,6 +133,7 @@ class AdminproductsController extends Controller {
         Router::redirect('adminproducts');
       }
     }
+    $this->view->brands = Brands::getOptionsForForm($user->id);
     $this->view->images = $images;
     $this->view->product = $product;
     $this->view->displayErrors = $product->getErrorMessages();
