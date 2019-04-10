@@ -13,7 +13,7 @@
         <p class="products-brand">By: <?=$product->brand?></p>
         <p class="card-text">$<?=$product->price?> <span class="list-price"><?=$list?></span></p>
         <p class="card-text"><?= $shipping?></p>
-        <a href="#" class="btn btn-primary">Go somewhere</a>
+        <a href="<?=PROOT?>products/details/<?=$product->id?>" class="btn btn-primary">See Details</a>
       </div>
     </div>
   <?php endforeach; ?>

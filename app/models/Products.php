@@ -2,6 +2,7 @@
   namespace App\Models;
   use Core\Model;
   use Core\Validators\{RequiredValidator,NumericValidator};
+  use App\Models\{Brands,ProductImages};
   use Core\H;
 
   class Products extends Model {
@@ -58,5 +59,26 @@
               group by pi.product_id
               ";
       return $this->query($sql)->results();
+    }
+
+    public function getBrandName(){
+      if(empty($this->brand_id)) return '';
+      $brand = Brands::findFirst([
+        'conditions' => "id = ?",
+        'bind' => [$this->brand_id]
+      ]);
+      return ($brand)? $brand->name : '';
+    }
+
+    public function displayShipping(){
+      return ($this->shipping == 0)? "Free shipping" : "$" . $this->shipping;
+    }
+
+    public function getImages(){
+      return ProductImages::find([
+        'conditions' => "product_id = ?",
+        'bind' => [$this->id],
+        'order' => 'sort'
+      ]);
     }
   }
