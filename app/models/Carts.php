@@ -1,6 +1,6 @@
 <?php
 namespace App\Models;
-use Core\{Model,Session,Cookie};
+use Core\{Model,Session,Cookie,DB};
 
 class Carts extends Model {
 
@@ -22,6 +22,16 @@ class Carts extends Model {
     }
     Cookie::set(CART_COOKIE_NAME,$cart->id,CART_COOKIE_EXPIRY);
     return $cart;
+  }
+
+  public static function findAllItemsByCartId($cart_id){
+    $sql = "SELECT items.*, p.name, p.price, p.shipping, pi.url
+      FROM cart_items as items
+      JOIN products as p ON p.id = items.product_id
+      JOIN product_images as pi ON p.id = pi.product_id
+      WHERE items.cart_id = ? AND pi.sort = 0 AND items.deleted = 0";
+    $db = DB::getInstance();
+    return $db->query($sql,[(int)$cart_id])->results();
   }
 
 }
