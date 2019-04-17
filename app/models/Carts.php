@@ -25,10 +25,11 @@ class Carts extends Model {
   }
 
   public static function findAllItemsByCartId($cart_id){
-    $sql = "SELECT items.*, p.name, p.price, p.shipping, pi.url
+    $sql = "SELECT items.*, p.name, p.price, p.shipping, pi.url, brands.name as brand
       FROM cart_items as items
       JOIN products as p ON p.id = items.product_id
       JOIN product_images as pi ON p.id = pi.product_id
+      LEFT JOIN brands ON brands.id = p.brand_id
       WHERE items.cart_id = ? AND pi.sort = 0 AND items.deleted = 0";
     $db = DB::getInstance();
     return $db->query($sql,[(int)$cart_id])->results();
