@@ -24,3 +24,8 @@
   define('CART_COOKIE_EXPIRY',1209600);
 
   define('ACCESS_RESTRICTED', 'Restricted'); //controller name for the restricted redirect
+
+  ################# Gateway Settings #######################################
+  define('GATEWAY','stripe'); // could use stripe, paypal
+  define('STRIPE_PUBLIC','pk_test_UgjEw1q4QsEClQOnyRE2C0r8');
+  define('STRIPE_PRIVATE','sk_test_s38Ykf9pzkwx7kGzLuDH7qSJ');

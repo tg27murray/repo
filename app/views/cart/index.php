@@ -48,7 +48,7 @@
 
   <aside class="col col-md-4 ">
     <div class="shopping-cart-summary">
-      <button class="btn btn-lg btn-primary btn-block">Proceed With Checkout</button>
+      <a href="<?=PROOT?>cart/checkout/<?=$this->cartId?>" class="btn btn-lg btn-primary btn-block">Proceed With Checkout</a>
       <div class="cart-line-item">
         <div>Item<?=($this->itemCount == 1)?"" : "s"?> (<?=$this->itemCount?>)</div>
         <div>$<?=$this->subTotal?></div>
