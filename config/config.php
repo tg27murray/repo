@@ -27,5 +27,5 @@
 
   ################# Gateway Settings #######################################
   define('GATEWAY','stripe'); // could use stripe, paypal
-  define('STRIPE_PUBLIC','pk_test_UgjEw1q4QsEClQOnyRE2C0r8');
-  define('STRIPE_PRIVATE','sk_test_s38Ykf9pzkwx7kGzLuDH7qSJ');
+  define('STRIPE_PUBLIC','pk_test_dVAFmhr5PcusMd6SMLP7GJcj00yJpboZEF');
+  define('STRIPE_PRIVATE','sk_test_nfkFVOqp4Dy73eAo5CISnc8O00Gt8xmHzY');
