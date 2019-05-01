@@ -3,9 +3,11 @@
   use App\Lib\Gateways\{StripeGateway};
 
   class Gateway {
-    public static function build($cart_id){
+    public static function build(){
       if(GATEWAY == 'stripe'){
-        return new StripeGateway($cart_id);
+        return new StripeGateway();
+      } else if(GATEWAY == 'braintree') {
+        return new BraintreeGateway();
       }
     }
   }

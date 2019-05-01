@@ -35,4 +35,12 @@ class Carts extends Model {
     return $db->query($sql,[(int)$cart_id])->results();
   }
 
+  public static function purchaseCart($cart_id){
+    $cart = self::findById($cart_id);
+    $cart->purchased = 1;
+    $cart->save();
+    Cookie::delete(CART_COOKIE_NAME);
+    return $cart;
+  }
+
 }

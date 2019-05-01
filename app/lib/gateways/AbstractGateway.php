@@ -6,7 +6,7 @@
     public $cart_id, $items, $itemCount=0, $subTotal=0, $shippingTotal=0, $grandTotal=0;
     public $chargeSuccess=false, $msgToUser='';
 
-    public function __construct($cart_id){
+    public function populateItems($cart_id){
       $this->cart_id = $cart_id;
       $this->items = Carts::findAllItemsByCartId($cart_id);
       foreach($this->items as $item){
@@ -22,4 +22,5 @@
     abstract public function charge($data);
     abstract public function handleChargeResp($ch);
     abstract public function createTransaction($ch);
+    abstract public function getToken();
   }

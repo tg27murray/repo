@@ -9,6 +9,12 @@
     <form action="<?=PROOT?>cart/checkout/<?=$this->cartId?>" method="post" id="payment-form">
       <?=FH::csrfInput()?>
       <input type="hidden" name="step" value="2"/>
+      <?=FH::hiddenInput('name',$this->tx->name)?>
+      <?=FH::hiddenInput('shipping_address1',$this->tx->shipping_address1)?>
+      <?=FH::hiddenInput('shipping_address2',$this->tx->shipping_address2)?>
+      <?=FH::hiddenInput('shipping_city',$this->tx->shipping_city)?>
+      <?=FH::hiddenInput('shipping_state',$this->tx->shipping_state)?>
+      <?=FH::hiddenInput('shipping_zip',$this->tx->shipping_zip)?>
       <div class="form-group col-md-12">
         <label for="card-element" class="control-label">
           Credit or debit card
@@ -20,8 +26,9 @@
         <!-- Used to display form errors. -->
         <div id="card-errors" role="alert" class="text-danger col-md-12 mb-3"></div>
       </div>
-
-      <button>Submit Payment</button>
+      <div class="col-md-12">
+        <button class="btn btn-lg btn-primary">Submit Payment</button>        
+      </div>
     </form>
   </div>
 

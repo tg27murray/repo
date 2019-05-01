@@ -11,12 +11,30 @@ class ComposerStaticInit41117ee403569ee8e3dfa747c528e483
         array (
             'Stripe\\' => 7,
         ),
+        'B' => 
+        array (
+            'Braintree\\' => 10,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'Stripe\\' => 
         array (
             0 => __DIR__ . '/..' . '/stripe/stripe-php/lib',
+        ),
+        'Braintree\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/braintree/braintree_php/lib/Braintree',
+        ),
+    );
+
+    public static $prefixesPsr0 = array (
+        'B' => 
+        array (
+            'Braintree' => 
+            array (
+                0 => __DIR__ . '/..' . '/braintree/braintree_php/lib',
+            ),
         ),
     );
 
@@ -25,6 +43,7 @@ class ComposerStaticInit41117ee403569ee8e3dfa747c528e483
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit41117ee403569ee8e3dfa747c528e483::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit41117ee403569ee8e3dfa747c528e483::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit41117ee403569ee8e3dfa747c528e483::$prefixesPsr0;
 
         }, null, ClassLoader::class);
     }

@@ -7,7 +7,7 @@
   class CartController extends Controller {
 
     public function indexAction() {
-      $cart_id = Cookie::get(CART_COOKIE_NAME);
+      $cart_id = (Cookie::exists(CART_COOKIE_NAME))? Cookie::get(CART_COOKIE_NAME): false;
       $itemCount = 0;
       $subTotal = 0.00;
       $shippingTotal = 0.00;
@@ -57,7 +57,8 @@
     }
 
     public function checkoutAction($cart_id){
-      $gw = Gateway::build((int)$cart_id);
+      $gw = Gateway::build();
+      $gw->populateItems((int)$cart_id);
       $tx = new Transactions();
 
       if($this->request->isPost()){
@@ -69,7 +70,7 @@
         if($step == '2'){
           $resp = $gw->processForm($this->request->get());
           $tx = $resp['tx'];
-          if(!$resp['success']){
+          if($resp['success'] != true){
             $tx->addErrorMessage('card-element',$resp['msg']);
           } else {
             Router::redirect('cart/thankYou/'.$tx->id);
@@ -77,6 +78,7 @@
         }
       }
 
+      $this->view->gatewayToken = $gw->getToken();
       $this->view->formErrors = $tx->getErrorMessages();
       $this->view->tx = $tx;
       $this->view->grandTotal = $gw->grandTotal;
@@ -87,5 +89,11 @@
       } else {
         $this->view->render($gw->getView());
       }
+    }
+
+    public function thankYouAction($tx_id){
+      $tx = Transactions::findById((int)$tx_id);
+      $this->view->tx = $tx;
+      $this->view->render('cart/thankYou');
     }
   }
