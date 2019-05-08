@@ -29,7 +29,7 @@
   define('ACCESS_RESTRICTED', 'Restricted'); //controller name for the restricted redirect
 
   ################# Gateway Settings #######################################
-  define('GATEWAY','stripe'); // could use stripe, braintree
+  define('GATEWAY','braintree'); // could use stripe, braintree
   define('STRIPE_PUBLIC','pk_test_dVAFmhr5PcusMd6SMLP7GJcj00yJpboZEF');
   define('STRIPE_PRIVATE','sk_test_nfkFVOqp4Dy73eAo5CISnc8O00Gt8xmHzY');
 

@@ -1,6 +1,6 @@
 <?php
   namespace App\Models;
-  use Core\{Model};
+  use Core\{Model, DB, H};
   use Core\Validators\{RequiredValidator};
 
   class Transactions extends Model{
@@ -21,5 +21,17 @@
       $this->runValidation(new RequiredValidator($this,['field'=>'shipping_city','msg'=>'City is required.']));
       $this->runValidation(new RequiredValidator($this,['field'=>'shipping_state','msg'=>'State is required.']));
       $this->runValidation(new RequiredValidator($this,['field'=>'shipping_zip','msg'=>'Zip Code is required.']));
+    }
+
+    public static function getDailySales($range='last-28'){
+      $today = date("Y-m-d");
+      $range = str_replace("last-","",$range);
+      $fromDate = date("Y-m-d",strtotime("-".$range." days"));
+      $db = DB::getInstance();
+      $sql = "SELECT DATE(created_at) as created_at, SUM(amount) as amount
+        FROM `transactions`
+        WHERE success = 1 AND created_at BETWEEN ? AND ?
+        GROUP BY DATE(created_at)";
+      return $db->query($sql,[$fromDate,$today." 23:59:59"])->results();
     }
   }
