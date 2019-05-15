@@ -12,8 +12,8 @@
       $min_price = $this->request->get('min_price');
       $max_price = $this->request->get('max_price');
       $page = (!empty($this->request->get('page')))? $this->request->get('page') : 1;
-      $offset = $page - 1;
       $limit = 4;
+      $offset = ($page - 1) * $limit;
       $options = [
         'search'=>$search,'min_price'=>$min_price,'max_price'=>$max_price,
         'brand'=>$brand, 'limit' => $limit, 'offset' => $offset

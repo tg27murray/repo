@@ -87,6 +87,13 @@
     form.submit();
   }
 
+  document.getElementById('filter-form').addEventListener('submit',function(evt){
+    var form = evt.target;
+    evt.preventDefault();
+    document.getElementById('page').value = 1;
+    form.submit();
+  });
+
   document.getElementById('expand-filters').addEventListener('click',toggleExpandFilters);
 </script>
 <?php $this->end(); ?>

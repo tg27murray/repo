@@ -52,9 +52,7 @@
       $limit = (array_key_exists('limit',$options) && !empty($options['limit']))? $options['limit'] : 4;
       $offset = (array_key_exists('offset',$options) && !empty($options['offset']))? $options['offset'] : 0;
       $where = "products.deleted = 0 AND pi.sort = '0'";
-      if(!self::hasFilters($options)){
-        $where .= " AND products.featured = '1'";
-      }
+      $hasFilters = self::hasFilters($options);
       $binds = [];
 
       if(array_key_exists('brand',$options) && !empty($options['brand'])){
@@ -78,24 +76,21 @@
         $binds[] = "%" . $options['search'] . "%";
       }
 
-
-      $select = "SELECT COUNT(*) as total";
-
-      $sql = " FROM products
+      $sql = "SELECT products.*, pi.url as url, brands.name as brand FROM products
               JOIN product_images as pi
               ON products.id = pi.product_id
               JOIN brands
               ON products.brand_id = brands.id
               WHERE {$where}
             ";
-      $total = $db->query($select . $sql,$binds)->first()->total;
 
-      $select = "SELECT products.*, pi.url as url, brands.name as brand";
+      $group = ($hasFilters)? " GROUP BY products.id ORDER BY products.name" : "GROUP BY products.id ORDER BY products.featured DESC";
       $pager = " Limit ? OFFSET ?";
       $binds[] = $limit;
       $binds[] = $offset;
 
-      $results = $db->query($select.$sql.$pager,$binds)->results();
+      $total = $db->query($sql.$group,$binds)->count();
+      $results = $db->query($sql.$group.$pager,$binds)->results();
 
       return ['results'=>$results,'total'=>$total];
     }
