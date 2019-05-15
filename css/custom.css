@@ -268,3 +268,60 @@ li.nav-item.nav-cart .nav-badge{
   padding: 4px;
   background-color: #ff3300;
 }
+
+.two-column-wrapper{
+  position: relative;
+}
+
+.filters-wrapper{
+  margin-left: -15px;
+  width: 300px;
+  background-color: #fbfbfb;
+  border-right: 1px solid #eaeaea;
+  overflow-x: hidden;
+  position: absolute;
+  top: -48px;
+  bottom: 0px;
+  left: -265px;
+  padding: 60px 50px 18px 18px;
+  transition: left 0.2s ease, padding 0.2s ease;
+  z-index: 2;
+}
+
+.two-column-wrapper.open .filters-wrapper{
+  left: 0px;
+  padding-right: 18px;
+}
+
+.two-column-wrapper #expand-filters{
+  position: absolute;
+  top: -40px;
+  left: -13px;
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #17a2b8;
+  color: #fff;
+  z-index: 3;
+  transition: left 0.2s ease;
+}
+
+.two-column-wrapper.open #expand-filters{
+  left: 250px;
+}
+
+.two-column-wrapper #expand-filters:hover{
+  cursor: pointer;
+}
+
+.two-column-wrapper .products-wrapper{
+  padding: 28px;
+  padding-left: 40px;
+  transition: padding 0.2s ease;
+}
+
+.two-column-wrapper.open .products-wrapper {
+  padding-left: 340px
+}
