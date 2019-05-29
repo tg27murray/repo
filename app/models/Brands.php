@@ -32,7 +32,7 @@
 
       if(!empty($user_id)){
         $params['conditions'] = "user_id = ?";
-        $params['bind'] = $user_id;
+        $params['bind'][] = $user_id;
       }
       $brands = self::find($params);
       $brandsAry = [''=>'-Select Brand-'];

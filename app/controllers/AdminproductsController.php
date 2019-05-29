@@ -1,15 +1,9 @@
 <?php
 namespace App\Controllers;
 
-use Core\Controller;
-use Core\H;
-use Core\Session;
-use Core\Router;
-use App\Models\Products;
-use App\Models\ProductImages;
+use Core\{Controller,H,Session,Router};
+use App\Models\{Products,ProductImages,Users,Brands,Options};
 use App\Lib\Utilities\Uploads;
-use App\Models\Users;
-use App\Models\Brands;
 
 class AdminproductsController extends Controller {
 
@@ -46,6 +40,7 @@ class AdminproductsController extends Controller {
       }
       $product->assign($this->request->get(),Products::blackList);
       $product->featured = ($this->request->get('featured') == 'on')? 1 : 0;
+      $product->has_options = ($this->request->get('has_options') == 'on')? 1 : 0;
       $product->user_id = $this->currentUser->id;
       $product->save();
       if($product->validationPassed()){
@@ -119,6 +114,7 @@ class AdminproductsController extends Controller {
       }
       $product->assign($this->request->get(),Products::blackList);
       $product->featured = ($this->request->get('featured') == 'on')? 1 : 0;
+      $product->has_options = ($this->request->get('has_options') == 'on')? 1 : 0;
       $product->user_id = $this->currentUser->id;
       $product->save();
       if($product->validationPassed()){
@@ -151,6 +147,42 @@ class AdminproductsController extends Controller {
         ProductImages::deleteById($image->id);
         $resp = ['success'=>true,'model_id'=>$image->id];
       }
+    }
+    $this->jsonResponse($resp);
+  }
+
+  function optionsAction(){
+    $this->view->options = Options::find([
+      'order' => 'name'
+    ]);
+    $this->view->render('adminproducts/options');
+  }
+
+  function editOptionAction($id){
+    $option = ($id == 'new')? new Options(): Options::findById((int)$id);
+    if($this->request->isPost()){
+      $this->request->csrfCheck();
+      $option->name = $this->request->get('name');
+      if($option->save()){
+        Session::addMsg('success','Option Saved!');
+        Router::redirect('adminproducts/options');
+      }
+    }
+    $this->view->option = $option;
+    $this->view->errors = $option->getErrorMessages();
+    $this->view->header = ($id == 'new')? "Add Product Option" : "Edit Product Option";
+    $this->view->render('adminproducts/editOption');
+  }
+
+  function deleteOptionAction(){
+    $id = $this->request->get('id');
+    $option = Options::findById((int)$id);
+    $resp = ['success'=>false,'msg'=>'Something went wrong...'];
+    if($option){
+      $option->delete();
+      $resp['success'] = true;
+      $resp['msg'] = 'Option Deleted';
+      $resp['model_id'] = $id;
     }
     $this->jsonResponse($resp);
   }

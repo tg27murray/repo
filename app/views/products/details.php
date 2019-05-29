@@ -1,3 +1,4 @@
+<?php use Core\FH; ?>
 <?php $this->setSiteTitle($this->product->name);?>
 <?php $this->start('body');?>
 <div class="row">
@@ -46,11 +47,24 @@
       <?php endif;?>
       <?=$this->product->displayShipping()?>
     </div>
+    <form action="<?=PROOT?>cart/addToCart/<?=$this->product->id?>" method="post">
+      <?=FH::csrfInput()?>
+    <?php if($this->product->hasOptions()): ?>
+      <div class="col-6 mt-2 mb-2">
+        <select name="option_id" id="option_id" class="form-control form-control-sm">
+          <option>-Choose Option-</option>
+          <?php foreach($this->options as $option): ?>
+            <option value="<?=$option->id?>"><?=$option->name?> (<?=$option->inventory?> available)</option>
+          <?php endforeach;?>
+        </select>
+      </div>
+    <?php endif;?>
     <div class="product-details-body"><?= html_entity_decode($this->product->body)?></div>
     <div>
-      <a href="<?=PROOT?>cart/addToCart/<?=$this->product->id?>" class="btn btn-info">
-        <i class="fas fa-cart-plus"></i> Add To Shopping Cart
-      </a>
+        <button class="btn btn-info">
+          <i class="fas fa-cart-plus"></i> Add To Shopping Cart
+        </button>
+      </form>
     </div>
   </div>
 </div>

@@ -14,7 +14,14 @@
 
   <div class="row">
     <?= FH::textareaBlock('Body','body',$this->product->body,['class'=>'form-control','rows'=>'6'],['class'=>'form-group col-md-12'],$this->displayErrors) ?>
-    <?= FH::checkboxBlock('Featured','featured',$this->product->isChecked(),['class'=>'form-controll'],['class'=>'form-group col-md-12'],$this->displayErrors) ?>
+    <?= FH::checkboxBlock('Featured','featured',$this->product->isChecked(),[],['class'=>'form-group col-md-12'],$this->displayErrors) ?>
+    <?= FH::checkboxBlock('Has Options','has_options',$this->product->hasOptions(),[],['class'=>'form-group col-md-12'],$this->displayErrors) ?>
+  </div>
+
+  <div id="optionsWrapper" class="row mb-3 <?= ($this->product->hasOptions()?"d-block" : "d-none")?>">
+    <div class="col-12">
+      put table and select search box here
+    </div>
   </div>
 
   <div class="row">
@@ -24,3 +31,16 @@
     <?= FH::submitBlock('Save',['class'=>'btn btn-large btn-primary'],['class'=>'text-right col-md-12']); ?>
   </div>
 </form>
+
+<script>
+  document.getElementById('has_options').addEventListener('change',function(evt){
+    var wrapper = document.getElementById('optionsWrapper');
+    if(evt.target.checked){
+      wrapper.classList.add('d-block');
+      wrapper.classList.remove('d-none');
+    } else {
+      wrapper.classList.add('d-none');
+      wrapper.classList.remove('d-block');
+    }
+  });
+</script>

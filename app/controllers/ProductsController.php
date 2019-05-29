@@ -14,6 +14,7 @@
         Session::addMsg('danger',"Oops...that product isn't available.");
         Router::redirect('/home');
       }
+      $this->view->options = $product->getOptions();
       $this->view->product = $product;
       $this->view->images = $product->getImages();
       $this->view->render('products/details');

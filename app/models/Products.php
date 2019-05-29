@@ -6,7 +6,8 @@
 
   class Products extends Model {
 
-    public $id, $created_at, $updated_at, $user_id, $name, $price, $list, $shipping, $body, $brand_id, $featured = 0, $deleted=0;
+    public $id, $created_at, $updated_at, $user_id, $name, $price, $list, $shipping;
+    public $body, $brand_id, $featured = 0, $has_options = 0, $inventory = 0, $deleted=0;
     const blackList = ['id','deleted','featured'];
     protected static $_table = 'products';
     protected static $_softDelete = true;
@@ -45,6 +46,21 @@
 
     public function isChecked(){
       return $this->featured === 1;
+    }
+
+    public function hasOptions(){
+      return $this->has_options === 1;
+    }
+
+    public function getOptions(){
+      if(!$this->hasOptions()) return [];
+      $sql = "
+      SELECT options.id, options.name, refs.inventory
+      FROM options
+      JOIN product_option_refs as refs ON options.id = refs.option_id
+      WHERE refs.product_id = ? AND refs.inventory > 0
+      ";
+      return DB::getInstance()->query($sql,[$this->id])->results();
     }
 
     public static function featuredProducts($options){

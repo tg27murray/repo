@@ -1,11 +1,12 @@
 <?php
 namespace App\Models;
-use Core\{Model,Session,Cookie};
+use Core\{Model,Session,Cookie,H};
+use Core\Validators\RequiredValidator;
 use App\Models\{Carts,Products};
 
 class CartItems extends Model {
 
-  public $id,$created_at,$updated_at,$cart_id,$product_id,$qty=0,$deleted=0;
+  public $id,$created_at,$updated_at,$cart_id,$product_id,$qty=0,$option_id,$deleted=0;
   protected static $_table = 'cart_items';
   protected static $_softDelete = true;
 
@@ -13,24 +14,29 @@ class CartItems extends Model {
     $this->timeStamps();
   }
 
-  public static function findByProductIdOrCreate($cart_id,$product_id){
+  public static function findByProductIdOrCreate($cart_id,$product_id,$option_id){
     $item = self::findFirst([
-      'conditions' => "cart_id = ? AND product_id = ?",
-      'bind' => [$cart_id,$product_id]
+      'conditions' => "cart_id = ? AND product_id = ? AND option_id = ?",
+      'bind' => [$cart_id,$product_id,$option_id]
     ]);
     if(!$item){
       $item = new self();
       $item->cart_id = $cart_id;
       $item->product_id = $product_id;
-      $item->save();
+      $item->option_id = $option_id;
+      // $item->save();
     }
     return $item;
   }
 
-  public static function addProductToCart($cart_id,$product_id){
+  public static function addProductToCart($cart_id,$product_id,$option_id=null){
     $product = Products::findById((int)$product_id);
     if($product){
-      $item = self::findByProductIdOrCreate($cart_id,$product_id);
+      $item = self::findByProductIdOrCreate($cart_id,$product_id,$option_id);
+      // validate to make sure there is an option selected if necessary
+      if($product->hasOptions() && empty($option_id)){
+        $item->addErrorMessage('option_id','You must choose an option.');
+      }
     }
     return $item;
   }
