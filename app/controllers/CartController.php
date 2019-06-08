@@ -11,7 +11,7 @@
       $itemCount = 0;
       $subTotal = 0.00;
       $shippingTotal = 0.00;
-      $items = Carts::findAllItemsByCartId((int)$cart_id);//H::dnd($items);
+      $items = Carts::findAllItemsByCartId((int)$cart_id);
       foreach($items as $item){
         $itemCount += $item->qty;
         $shippingTotal += ($item->qty * $item->shipping);
@@ -36,7 +36,7 @@
           $item->qty = $item->qty + 1;
           $item->save();
         } else {
-          Session::addMsg('danger','You must choose an option.');
+          Session::addMsg('danger',$errors['option_id']);
           Router::redirect('products/details/'.$product_id);
         }
         $this->view->render('cart/addToCart');

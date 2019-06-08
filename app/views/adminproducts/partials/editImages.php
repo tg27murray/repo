@@ -56,7 +56,6 @@
           }
         }
       });
-      console.log(image_id);
     }
   }
 

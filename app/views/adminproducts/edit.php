@@ -8,12 +8,73 @@
       branding: false
     });
   </script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet" />
+  <style>
+    .select2-container{
+      display: block;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/js/select2.min.js"></script>
+  <script>
+    function calcInventory(){
+      var total = 0;
+      var options = document.querySelectorAll('input.option_inventory');
+      for(var i = 0;i < options.length; i++){
+        var option = options[i];
+        total += parseInt(option.value,10);
+      }
+      document.getElementById('inventory').value = total;
+    }
+
+    $(document).ready(function() {
+      calcInventory();
+      $('.multi-options-select').select2({
+        ajax : {
+          url : '<?=PROOT?>adminproducts/getOptionsForForm',
+          dataType: 'json',
+          processResults : function(resp){
+            return {results: resp.items}
+          }
+        }
+      });
+      $('.multi-options-select').on('select2:select',function(e){
+        var wrap = document.getElementById('optionsInventoryWrapper');
+        var inputWrap = document.createElement('div');
+        inputWrap.setAttribute('class','form-group');
+        inputWrap.setAttribute('data-id',e.params.data.id);
+
+        var label = document.createElement('label');
+        label.setAttribute('class','control-label');
+        label.setAttribute('for','inventory_'+e.params.data.id);
+        var labelText = document.createTextNode(e.params.data.text+" Inventory");
+        label.appendChild(labelText);
+        inputWrap.appendChild(label);
+
+        var input = document.createElement('input');
+        input.setAttribute('class','form-control option_inventory');
+        input.setAttribute('type','number');
+        input.setAttribute('id','inventory_' + e.params.data.id);
+        input.setAttribute('name','inventory_' + e.params.data.id);
+        input.setAttribute('value','0');
+        input.setAttribute('onblur','calcInventory()');
+        inputWrap.appendChild(input);
+
+        wrap.appendChild(inputWrap);
+      });
+
+      $('.multi-options-select').on('select2:unselect',function(e){
+        var wrap = document.querySelector('div[data-id="'+e.params.data.id+'"]');
+        wrap.remove();
+      });
+    });
+  </script>
+
 <?php $this->end() ?>
 
 <?php $this->start('body')?>
 <div class="row align-items-center justify-content-center">
   <div class="col-md-8 bg-light p-3">
-    <h1 class="text-center">Edit <?=$this->product->name?></h1>
+    <h1 class="text-center"><?=$this->header?></h1>
     <form action="" method="POST" enctype="multipart/form-data">
       <?= FH::csrfInput();?>
       <div class="row">
@@ -23,14 +84,38 @@
         <?= FH::inputBlock('text','List Price','list',$this->product->list,['class'=>'form-control input-sm'],['class'=>'form-group col-md-2'],$this->displayErrors) ?>
         <?= FH::inputBlock('text','Shipping','shipping',$this->product->shipping,['class'=>'form-control input-sm'],['class'=>'form-group col-md-2'],$this->displayErrors) ?>
         <?= FH::selectBlock('Brand','brand_id',$this->product->brand_id,$this->brands,['class'=>'form-control input-sm'],['class'=>'form-group col-md-3'],$this->displayErrors) ?>
+        <?php
+          $invInputClass = ['class'=>'form-control input-sm'];
+          if($this->product->hasOptions()){
+            $invInputClass['readonly'] = 'readonly';
+          }
+        ?>
+        <?= FH::inputBlock('number','Inventory','inventory',$this->product->inventory,$invInputClass,['class'=>'form-group col-md-2'],$this->displayErrors) ?>
 
       </div>
 
       <div class="row">
         <?= FH::textareaBlock('Body','body',$this->product->body,['class'=>'form-control','rows'=>'6'],['class'=>'form-group col-md-12'],$this->displayErrors) ?>
-        <?= FH::checkboxBlock('Featured','featured',$this->product->isChecked(),[],['class'=>'form-group col-md-12'],$this->displayErrors) ?>   
+        <?= FH::checkboxBlock('Featured','featured',$this->product->isChecked(),[],['class'=>'form-group col-md-12'],$this->displayErrors) ?>
         <?= FH::checkboxBlock('Has Options','has_options',$this->product->hasOptions(),[],['class'=>'form-group col-md-12'],$this->displayErrors) ?>
 
+      </div>
+
+      <div id="optionsWrapper" class="row mb-3 <?= ($this->product->hasOptions()? 'd-flex' : 'd-none')?>">
+        <div class="col-6 form-group">
+          <label class="control-label">Options</label>
+          <select class="multi-options-select form-control" name="options[]" multiple="multiple">
+            <?php foreach($this->options as $option): ?>
+              <option value="<?=$option->id?>" selected="selected"><?=$option->name?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="col-6" id="optionsInventoryWrapper">
+          <?php foreach($this->options as $option){
+            echo FH::inputBlock('number',$option->name." Inventory",'inventory_'.$option->id,$option->inventory,['class'=>'form-control option_inventory','onblur'=>"calcInventory()"],['class'=>'form-group','data-id'=>$option->id]);
+          } ?>
+        </div>
       </div>
 
       <?php $this->partial('adminproducts','editImages')?>
@@ -47,4 +132,21 @@
     </form>
   </div>
 </div>
+
+<script>
+  document.getElementById('has_options').addEventListener('change',function(evt){
+    var wrapper = document.getElementById('optionsWrapper');
+    var inventory = document.getElementById('inventory');
+    if(evt.target.checked){
+      wrapper.classList.add('d-flex');
+      wrapper.classList.remove('d-none');
+      inventory.setAttribute("readonly","readonly");
+    } else {
+      wrapper.classList.add('d-none');
+      wrapper.classList.remove('d-flex');
+      inventory.removeAttribute("readonly");
+    }
+  });
+
+</script>
 <?php $this->end()?>

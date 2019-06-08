@@ -67,7 +67,7 @@
       $db = DB::getInstance();
       $limit = (array_key_exists('limit',$options) && !empty($options['limit']))? $options['limit'] : 4;
       $offset = (array_key_exists('offset',$options) && !empty($options['offset']))? $options['offset'] : 0;
-      $where = "products.deleted = 0 AND pi.sort = '0'";
+      $where = "products.deleted = 0 AND pi.sort = '0' AND pi.deleted = 0 AND products.inventory > 0";
       $hasFilters = self::hasFilters($options);
       $binds = [];
 

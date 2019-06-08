@@ -52,17 +52,16 @@ class ProductImages extends Model{
 
   public static function deleteById($id){
     $image = self::findById($id);
-    $sort = $image->sort;
-    $afterImages = self::find([
-      'conditions' => "product_id = ? and sort > ?",
-      'bind' => [$image->product_id, $sort]
-    ]);
-    foreach($afterImages as $af){
-      $af->sort = $af->sort -1;
-      $af->save();
+    $deleted = false;
+    if($image){
+      $product_id = $image->product_id;
+      unlink(ROOT.DS.'uploads'.DS. 'product_images'.DS.'product_'.$image->product_id.DS. $image->name);
+      $deleted = $image->delete();
+      if($deleted){
+        self::updateSortByProductId($product_id);
+      }
     }
-    unlink(ROOT.DS.'uploads'.DS. 'product_images'.DS.'product_'.$image->product_id.DS. $image->name);
-    return $image->delete();
+    return $deleted;
   }
 
   public static function findByProductId($product_id){

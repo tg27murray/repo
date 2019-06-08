@@ -1,9 +1,15 @@
+<?php use Core\H;?>
 <h3>Purchase Summary</h3>
 <?php foreach($this->items as $item):?>
   <div class="cart-preview-item">
     <div class="cart-preview-item-img"><img src="<?=PROOT . $item->url?>" alt="<?=$item->name?>" /></div>
     <div class="cart-preview-item-info">
-      <p><?=$item->name?></p>
+      <p>
+        <?=$item->name?>
+        <?php if(!empty($item->option)):?>
+        <span> (<?=$item->option?>)</span>
+        <?php endif; ?>
+      </p>
       <p><?= $item->qty?> @ $<?=$item->price?></p>
       <p>Shipping: $<?=$item->shipping?></p>
     </div>

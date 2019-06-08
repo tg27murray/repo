@@ -4,6 +4,7 @@
     <th>Name</th>
     <th>Price</th>
     <th>Shipping</th>
+    <th>Inventory</th>
     <th></th>
   </thead>
   <tbody>
@@ -12,6 +13,7 @@
         <td><?=$product->name ?></td>
         <td><?=$product->price ?></td>
         <td><?=$product->shipping ?></td>
+        <td><?=$product->inventory ?></td>
         <td class="text-right">
           <a class="btn btn-sm btn-outline-info mr-1" onclick="toggleFeatured('<?=$product->id?>');return false;">
             <i data-id="<?=$product->id?>" class="<?=($product->featured == 1)? 'fas fa-star': 'far fa-star'?>"></i>

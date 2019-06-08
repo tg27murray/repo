@@ -2,7 +2,7 @@
   "Dashboard" : "admindashboard/index",
   "Products" : {
     "View Products" : "adminproducts/index",
-    "Add Product" : "adminproducts/add",
+    "Add Product" : "adminproducts/edit/new",
     "separator" : " ",
     "Options" : "adminproducts/options"
 

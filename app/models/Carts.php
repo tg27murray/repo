@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 use Core\{Model,Session,Cookie,DB,H};
+use App\Models\CartItems;
 
 class Carts extends Model {
 
@@ -25,14 +26,16 @@ class Carts extends Model {
   }
 
   public static function findAllItemsByCartId($cart_id){
-    $sql = "SELECT items.*, p.name, p.price, p.shipping, pi.url, brands.name as brand
+    $sql = "SELECT items.*, p.name, p.price, p.shipping, pi.url, brands.name as brand ,options.name as option
       FROM cart_items as items
       JOIN products as p ON p.id = items.product_id
       JOIN product_images as pi ON p.id = pi.product_id
+      LEFT JOIN options ON  items.option_id = options.id
       LEFT JOIN brands ON brands.id = p.brand_id
-      WHERE items.cart_id = ? AND pi.sort = 0 AND items.deleted = 0";
+      WHERE items.cart_id = ? AND pi.sort = 0 AND pi.deleted = 0 AND items.deleted = 0
+      GROUP BY items.id";
     $db = DB::getInstance();
-    return $db->query($sql,[(int)$cart_id])->results();
+    return $db->query($sql,[(int)$cart_id],CartItems::class)->results();
   }
 
   public static function purchaseCart($cart_id){
@@ -40,7 +43,25 @@ class Carts extends Model {
     $cart->purchased = 1;
     $cart->save();
     Cookie::delete(CART_COOKIE_NAME);
+    self::purchaseInventoryUpdate($cart);
     return $cart;
+  }
+
+  public static function purchaseInventoryUpdate($cart){
+    $items = self::findAllItemsByCartId($cart->id);
+    foreach($items as $item){
+      $product = Products::findById($item->product_id);
+      if(!empty($item->option_id)){
+        $ref = ProductOptionRefs::findFirst([
+          'conditions' => "product_id = ? AND option_id = ?",
+          'bind' => [$product->id, $item->option_id]
+        ]);
+        $ref->inventory = $ref->inventory - $item->qty;
+        $ref->save();
+      }
+      $product->inventory = $product->inventory - $item->qty;
+      $product->save();
+    }
   }
 
   public static function itemCountCurrentCart(){
