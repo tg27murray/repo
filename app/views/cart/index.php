@@ -21,6 +21,9 @@
         <div class="shopping-cart-item-name">
           <a href="<?=PROOT?>products/details/<?=$item->id?>" title="<?=$item->name?>">
             <?=$item->name?>
+            <?php if(!empty($item->option)):?>
+            <span> (<?=$item->option?>)</span>
+            <?php endif;?>
           </a>
           <p>by <?=$item->brand?></p>
         </div>
@@ -31,7 +34,9 @@
             <a href="<?=PROOT?>cart/changeQty/down/<?=$item->id?>"><i class="fas fa-chevron-down"></i></a>
           <?php endif;?>
           <input class="form-control form-control-sm" readonly value="<?=$item->qty?>"/>
-          <a href="<?=PROOT?>cart/changeQty/up/<?=$item->id?>"><i class="fas fa-chevron-up"></i></a>
+          <?php if($item->qty < $item->qtyAvailable()):?>
+            <a href="<?=PROOT?>cart/changeQty/up/<?=$item->id?>"><i class="fas fa-chevron-up"></i></a>
+          <?php endif;?>
         </div>
 
         <div class="shopping-cart-item-price">

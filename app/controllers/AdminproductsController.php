@@ -2,7 +2,7 @@
 namespace App\Controllers;
 
 use Core\{Controller,H,Session,Router};
-use App\Models\{Products,ProductImages,Users,Brands,Options};
+use App\Models\{Products,ProductImages,Users,Brands,Options,ProductOptionRefs};
 use App\Lib\Utilities\Uploads;
 
 class AdminproductsController extends Controller {
@@ -15,47 +15,6 @@ class AdminproductsController extends Controller {
   public function indexAction(){
     $this->view->products = Products::findByUserId($this->currentUser->id);
     $this->view->render('adminproducts/index');
-  }
-
-  public function addAction(){
-    $product = new Products();
-    $productImage = new ProductImages();
-    if($this->request->isPost()){
-      $this->request->csrfCheck();
-      $files = $_FILES['productImages'];
-      if($files['tmp_name'][0] == ''){
-        $product->addErrorMessage('productImages','You must choose an image.');
-      } else {
-        $uploads = new Uploads($files);
-        $uploads->runValidation();
-        $imagesErrors = $uploads->validates();
-        if(is_array($imagesErrors)){
-          $msg = "";
-          foreach($imagesErrors as $name => $message){
-            $msg .= $message . " ";
-          }
-          $product->addErrorMessage('productImages',trim($msg));
-        }
-
-      }
-      $product->assign($this->request->get(),Products::blackList);
-      $product->featured = ($this->request->get('featured') == 'on')? 1 : 0;
-      $product->has_options = ($this->request->get('has_options') == 'on')? 1 : 0;
-      $product->user_id = $this->currentUser->id;
-      $product->save();
-      if($product->validationPassed()){
-        //upload images
-        ProductImages::uploadProductImages($product->id,$uploads);
-        //redirect
-        Session::addMsg('success','Product Added!');
-        Router::redirect('adminproducts');
-      }
-    }
-    $this->view->product = $product;
-    $this->view->brands = Brands::getOptionsForForm($this->currentUser->id);
-    $this->view->formAction = PROOT.'adminproducts/add';
-    $this->view->displayErrors = $product->getErrorMessages();
-    $this->view->render('adminproducts/add');
   }
 
   public function deleteAction(){
@@ -89,7 +48,7 @@ class AdminproductsController extends Controller {
 
   public function editAction($id){
     $user = Users::currentUser();
-    $product = Products::findByIdAndUserId((int)$id,$user->id);
+    $product = ($id == 'new')? new Products() : Products::findByIdAndUserId((int)$id,$user->id);
     if(!$product){
       Session::addMsg('danger','You do not have permission to edit that product');
       Router::redirect('adminproducts');
@@ -97,6 +56,8 @@ class AdminproductsController extends Controller {
     $images = ProductImages::findByProductId($product->id);
     if($this->request->isPost()){
       $this->request->csrfCheck();
+      $options = $_POST['options'];
+      unset($_REQUEST['options']);
       $files = $_FILES['productImages'];
       $isFiles = $files['tmp_name'][0] != '';
       if($isFiles){
@@ -112,6 +73,7 @@ class AdminproductsController extends Controller {
           $product->addErrorMessage('productImages',trim($msg));
         }
       }
+
       $product->assign($this->request->get(),Products::blackList);
       $product->featured = ($this->request->get('featured') == 'on')? 1 : 0;
       $product->has_options = ($this->request->get('has_options') == 'on')? 1 : 0;
@@ -124,11 +86,27 @@ class AdminproductsController extends Controller {
         }
         $sortOrder = json_decode($_POST['images_sorted']);
         ProductImages::updateSortByProductId($product->id,$sortOrder);
+        $inventory = 0;
+        //save options
+        if($product->hasOptions()){
+          foreach($options as $option_id){
+            $ref = ProductOptionRefs::findOrCreate($product->id,$option_id);
+            $ref->inventory = $this->request->get("inventory_".$option_id);
+            $ref->save();
+            $inventory += $ref->inventory;
+          }
+        } else {
+          $inventory = $this->request->get('inventory');
+        }
+        $product->inventory = $inventory;
+        $product->save();
         //redirect
         Session::addMsg('success','Product Updated!');
         Router::redirect('adminproducts');
       }
     }
+    $this->view->options = Options::getOptionsByProductId($product->id);
+    $this->view->header = ($id == 'new')? "Add New Product" : "Edit " . $product->name;
     $this->view->brands = Brands::getOptionsForForm($user->id);
     $this->view->images = $images;
     $this->view->product = $product;
@@ -184,6 +162,19 @@ class AdminproductsController extends Controller {
       $resp['msg'] = 'Option Deleted';
       $resp['model_id'] = $id;
     }
+    $this->jsonResponse($resp);
+  }
+
+  function getOptionsForFormAction(){
+    $options = Options::find([
+      'conditions' => 'name LIKE ?',
+      'bind' => ['%'.$this->request->get('q').'%']
+    ]);
+    $items = [];
+    foreach($options as $option){
+      $items[] = ['id'=>$option->id, 'text'=>$option->name];
+    }
+    $resp = ['items'=>$items];
     $this->jsonResponse($resp);
   }
 }
